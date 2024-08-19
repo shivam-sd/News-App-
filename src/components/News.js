@@ -1,5 +1,8 @@
 import React, { Component } from 'react'
 import NewsItems from './NewsItems'
+import Spinner from './spinner'
+// import { wait } from '@testing-library/user-event/dist/utils'
+
 export default class News extends Component {
   articles =  [
     {
@@ -53,43 +56,57 @@ export default class News extends Component {
   }
 
  async componentDidMount(){
-    let url = "https://newsapi.org/v2/top-headlines?country=in&apiKey=328a9a74a4c4407a9ea2025772289620";
+    let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=328a9a74a4c4407a9ea2025772289620&pageSize=${this.props.pageSize}`;
+    this.setState({
+      loading:true
+    })
     let data = await fetch(url);
     let parsedata = await data.json();
     console.log(parsedata);
-    this.setState({articles: parsedata.articles})
+    this.setState({articles: parsedata.articles, 
+      loading:false
+    })
   }
 
 handleNextBtn = async () => {
   console.log("Next");
-  let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=328a9a74a4c4407a9ea2025772289620&page=${this.state.page + 1}`;
+  let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=328a9a74a4c4407a9ea2025772289620&page=${this.state.page + 1}&pageSize=${this.props.pageSize}`;
+  this.setState({
+    loading:true
+  })
   let data = await fetch(url);
   let parsedata = await data.json();
   console.log(parsedata);
   this.setState({
     page:this.state.page + 1,
-    articles: parsedata.articles
+    articles: parsedata.articles,
+    loading:false
   })
 }
   
 handlePreviousbtn = async () => {
-  let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=328a9a74a4c4407a9ea2025772289620&page=${this.state.page - 1}`;
+  let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=328a9a74a4c4407a9ea2025772289620&page=${this.state.page - 1}&pageSize=${this.props
+.pageSize}`;
+  this.setState({
+    loading:true
+  })
   let data = await fetch(url);
   let parsedata = await data.json();
   console.log(parsedata);
   this.setState({
     page:this.state.page - 1,
-    articles: parsedata.articles
+    articles: parsedata.articles,
+    loading:false
   })
 }
 
   render() {
     return (
       <div className="container my-3">
-
-        <h2>News Monkey - Top HeadLines</h2>
+        <h2 className='text-center'>News Monkey - Top HeadLines</h2>
+        {this.state.loading && <Spinner/>} 
         <div className="row">
-          {this.state.articles.map((element) => {
+          {!this.state.loading && this.state.articles.map((element) => {
           return <div className="col-md-4" key={element.url}>
           <NewsItems title={element.title ? element.title: ""} description={element.description ? element.description : ""} ImageUrl={element.urlToImage} NewsUrl={element.url} author={element.author}/>    
           </div>
